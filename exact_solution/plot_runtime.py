@@ -8,10 +8,21 @@ References:
 - NumPy documentation: https://numpy.org/doc/stable/
 """
 
-import matplotlib.pyplot as plt
-import numpy as np
 import os
 import sys
+
+# Try to import matplotlib, provide helpful error if not available
+try:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
+    print("Warning: matplotlib is not installed.")
+    print("To install: pip install matplotlib numpy")
+    print("Or if using conda: conda install matplotlib numpy")
+    print("")
+    print("The script will still read and display the data in text format.")
 
 def read_runtime_data(filename):
     """
@@ -56,6 +67,22 @@ def plot_runtime_analysis(data):
     
     if not valid_data:
         print("No valid runtime data to plot.")
+        return
+    
+    if not HAS_MATPLOTLIB:
+        # Print data in text format if matplotlib not available
+        print("Runtime Data Summary:")
+        print("=" * 80)
+        print(f"{'Test Case':<25} {'Vertices':<10} {'Edges':<10} {'Runtime (s)':<15}")
+        print("-" * 80)
+        for name, v, e, r in valid_data:
+            short_name = name.replace('test_input_', '')[:24]
+            print(f"{short_name:<25} {v:<10} {e:<10} {r:<15.4f}")
+        print("=" * 80)
+        print("\nTo create plots, please install matplotlib:")
+        print("  pip install matplotlib numpy")
+        print("  or")
+        print("  conda install matplotlib numpy")
         return
     
     # Extract data

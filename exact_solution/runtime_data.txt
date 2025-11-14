@@ -1,0 +1,20 @@
+# Test Case | Vertices | Edges | Runtime (seconds)
+# Format: test_name vertices edges runtime_seconds
+
+test_input_small_1 2 1 0.03
+test_input_small_2 3 2 0.01
+test_input_1 3 3 0.01
+test_input_2 4 6 0.01
+test_input_3 5 10 0.01
+test_input_4 6 9 0.01
+test_input_5 8 12 0.01
+test_input_medium_1 7 12 0.01
+test_input_6 10 20 0.01
+test_input_7 12 18 0.01
+test_input_medium_2 9 15 0.01
+test_input_8 15 30 0.05
+test_input_large_1 11 20 0.02
+test_input_large_2 13 25 0.02
+test_input_very_large 20 40 2.72
+test_input_large 18 35 0.41
+test_input_extreme 22 45 7.76

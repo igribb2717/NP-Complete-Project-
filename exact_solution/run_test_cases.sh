@@ -84,8 +84,9 @@ run_test "test_input_large_2" "13" "25" "Test 14: Large graph (13 vertices, 25 e
 
 # Very Large (18+ vertices) - Should run for > 20 minutes
 echo -e "${YELLOW}=== VERY LARGE TEST CASES (> 20 MINUTES) ===${NC}"
-run_test "test_input_very_large" "20" "40" "Test 15: Very large graph (20 vertices, 40 edges)" "true"
-run_test "test_input_large" "18" "35" "Test 16: Very large graph (18 vertices, 35 edges) - EXPECTED >20 MINUTES" "true"
+run_test "test_input_dense_large" "16" "60" "Test 15: Dense large graph (16 vertices, 60 edges) - EXPECTED >20 MINUTES" "true"
+run_test "test_input_very_large" "20" "40" "Test 16: Very large graph (20 vertices, 40 edges)" "true"
+run_test "test_input_large" "18" "35" "Test 17: Very large graph (18 vertices, 35 edges) - EXPECTED >20 MINUTES" "true"
 
 # Extreme (22+ vertices) - Will take hours
 echo -e "${RED}=== EXTREME TEST CASES (HOURS - OPTIONAL) ===${NC}"
@@ -95,7 +96,7 @@ echo ""
 read -p "Run extreme test case? (y/N): " -n 1 -r
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    run_test "test_input_extreme" "22" "45" "Test 17: Extreme graph (22 vertices, 45 edges) - EXPECTED HOURS" "true"
+    run_test "test_input_extreme" "22" "45" "Test 18: Extreme graph (22 vertices, 45 edges) - EXPECTED HOURS" "true"
 else
     echo -e "${YELLOW}Skipping extreme test case.${NC}"
     echo ""
