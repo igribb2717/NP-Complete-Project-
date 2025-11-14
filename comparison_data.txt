@@ -1,0 +1,9 @@
+# Test Case | Vertices | Edges | Exact Runtime (s) | Approx Runtime (s) | Exact Value | Approx Value | Quality | Difference | Percent Diff | Speedup
+# Format for plotting: test_name vertices edges exact_time approx_time exact_length approx_length quality diff percent speedup
+
+test_small_1|3|3|0.014820098876953125|0.025987863540649414|9|9|OPTIMAL|0|0|.57
+test_small_2|4|6|0.015265941619873047|0.02178502082824707|13|13|OPTIMAL|0|0|.70
+test_medium_1|5|10|0.014944791793823242|0.02166604995727539|48|48|OPTIMAL|0|0|.68
+test_medium_2|6|9|0.015469074249267578|0.02549910545349121|35|35|OPTIMAL|0|0|.60
+test_large_1|10|20|0.019497156143188477|0.022089004516601562|112|111|SUBOPTIMAL|1|.89|.88
+test_nonoptimal|6|8|0.015312910079956055|0.021853923797607422|56|56|OPTIMAL|0|0|.70
