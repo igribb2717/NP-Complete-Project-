@@ -97,7 +97,7 @@ def read_graph(input_source):
     return vertices, graph
 
 
-def greedy_path_from_start(start, graph, vertices, random_seed=None):
+def greedy_path_from_start(start, graph, vertices, random_seed=None, strategy='greedy'):
     """
     Find a path starting from 'start' using a greedy strategy.
     
@@ -109,6 +109,7 @@ def greedy_path_from_start(start, graph, vertices, random_seed=None):
         graph: adjacency dictionary
         vertices: set of all vertices
         random_seed: optional seed for reproducibility
+        strategy: 'greedy' (simple greedy) or 'lookahead' (prefer vertices with high-weight edges)
     
     Returns:
         (path_length, path): tuple of path length and list of vertices
@@ -127,20 +128,32 @@ def greedy_path_from_start(start, graph, vertices, random_seed=None):
         if current in graph:
             for neighbor, weight in graph[current].items():
                 if neighbor not in visited:
-                    candidates.append((weight, neighbor))
+                    if strategy == 'lookahead':
+                        # Score based on edge weight + potential future edges
+                        # Look at the maximum edge weight from this neighbor to unvisited vertices
+                        future_potential = 0
+                        if neighbor in graph:
+                            for future_neighbor, future_weight in graph[neighbor].items():
+                                if future_neighbor not in visited and future_neighbor != current:
+                                    future_potential = max(future_potential, future_weight)
+                        # Combine current edge weight with potential (weighted)
+                        score = weight + 0.3 * future_potential
+                        candidates.append((score, weight, neighbor))
+                    else:
+                        candidates.append((weight, weight, neighbor))
         
         if not candidates:
             break  # No more neighbors to visit
         
-        # Sort by weight (descending), then randomly shuffle ties
+        # Sort by score (descending), then randomly shuffle ties
         candidates.sort(reverse=True, key=lambda x: x[0])
         
-        # Find all candidates with the maximum weight (ties)
-        max_weight = candidates[0][0]
-        tied_candidates = [c for c in candidates if c[0] == max_weight]
+        # Find all candidates with the maximum score (ties)
+        max_score = candidates[0][0]
+        tied_candidates = [c for c in candidates if abs(c[0] - max_score) < 1e-9]
         
         # Randomly choose among tied candidates
-        chosen_weight, chosen_neighbor = random.choice(tied_candidates)
+        _, chosen_weight, chosen_neighbor = random.choice(tied_candidates)
         
         # Add to path
         visited.add(chosen_neighbor)
@@ -159,7 +172,7 @@ def find_longest_path_approx(vertices, graph, num_starts=None, random_seed=None)
         vertices: set of all vertices
         graph: adjacency dictionary
         num_starts: number of starting vertices to try (None = try all for small graphs, 
-                   or min(50, n) for large graphs)
+                   or more for large graphs)
         random_seed: optional seed for reproducibility
     
     Returns:
@@ -172,11 +185,13 @@ def find_longest_path_approx(vertices, graph, num_starts=None, random_seed=None)
     
     # Determine how many starting vertices to try
     if num_starts is None:
-        # For small graphs, try all vertices. For large graphs, limit to avoid long runtime
-        if n <= 20:
-            num_starts = n
+        # Try all vertices for small/medium graphs, more for large graphs
+        if n <= 100:
+            num_starts = n  # Try all vertices
+        elif n <= 200:
+            num_starts = min(150, n)  # Try most vertices
         else:
-            num_starts = min(50, n)  # Limit to 50 starts for large graphs to keep it polynomial
+            num_starts = min(200, n)  # Try up to 200 for very large graphs
     
     # Select starting vertices
     vertex_list = list(vertices)
@@ -191,15 +206,38 @@ def find_longest_path_approx(vertices, graph, num_starts=None, random_seed=None)
     max_length = 0
     best_path = []
     
-    # Try each starting vertex
+    # Number of random seeds to try per starting vertex
+    # More seeds = more diversity in tie-breaking, better chance of finding good paths
+    if n <= 20:
+        num_seeds_per_start = 30  # Small graphs: try many seeds
+    elif n <= 50:
+        num_seeds_per_start = 20  # Medium graphs: try many seeds
+    elif n <= 100:
+        num_seeds_per_start = 15  # Larger graphs: still try many seeds
+    else:
+        num_seeds_per_start = 10  # Very large graphs: limit seeds to keep polynomial
+    
+    # Try each starting vertex with multiple random seeds and strategies
     for i, start in enumerate(starts):
-        # Use different seed for each start to get different tie-breaking
-        seed = random_seed + i if random_seed is not None else None
-        path_length, path = greedy_path_from_start(start, graph, vertices, seed)
-        
-        if path_length > max_length:
-            max_length = path_length
-            best_path = path
+        # Try multiple random seeds for this starting vertex
+        for seed_offset in range(num_seeds_per_start):
+            # Use different seed for each attempt
+            if random_seed is not None:
+                seed = random_seed + i * 1000 + seed_offset
+            else:
+                seed = i * 1000 + seed_offset
+            
+            # Try simple greedy strategy
+            path_length, path = greedy_path_from_start(start, graph, vertices, seed, strategy='greedy')
+            if path_length > max_length:
+                max_length = path_length
+                best_path = path
+            
+            # Try lookahead strategy (prefer vertices with high-weight future edges)
+            path_length, path = greedy_path_from_start(start, graph, vertices, seed, strategy='lookahead')
+            if path_length > max_length:
+                max_length = path_length
+                best_path = path
     
     return max_length, best_path
 
