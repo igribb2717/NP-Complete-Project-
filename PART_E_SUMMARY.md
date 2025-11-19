@@ -86,7 +86,7 @@ python3 analyze_comparison.py
 - The exact solution is exponential time, so test cases are limited to graphs with ≤12 vertices
 - Larger graphs focus on sparse structures (trees, paths) where exact solution is faster
 - The comparison includes timeout handling (60s for exact, 10s for approximation)
-- All test cases use reproducible random seeds for consistency
+- All test cases use reproducible random seeds for consistensy
 
 ## Verification
 
