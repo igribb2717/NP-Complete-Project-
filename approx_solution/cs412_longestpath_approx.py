@@ -15,24 +15,6 @@ Algorithm Strategy:
 Time Complexity: O(n * m) where n is vertices and m is edges - polynomial time
 Space Complexity: O(n + m)
 
-External Sources and References:
----------------------------------
-1. Greedy Algorithm Design:
-   - Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). 
-     "Introduction to Algorithms" (3rd ed.). MIT Press.
-   - Chapter 16: Greedy Algorithms - greedy choice property and optimal substructure
-
-2. Approximation Algorithms:
-   - Vazirani, V. V. (2013). "Approximation Algorithms" (2nd ed.). Springer.
-   - General principles of approximation algorithm design
-
-3. Python Standard Library:
-   - random module: https://docs.python.org/3/library/random.html
-   - Used for random tie-breaking in greedy choices
-   - collections.defaultdict: https://docs.python.org/3/library/collections.html
-   - Used for efficient graph representation
-   - sys module: https://docs.python.org/3/library/sys.html
-   - Used for stdin/stdout handling and command-line arguments
 """
 
 import sys
