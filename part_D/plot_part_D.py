@@ -148,6 +148,65 @@ def plot_runtime(data, out_dir):
     plt.close()
 
 
+def plot_runtime_exact_only(data, out_dir):
+    """Plot runtime (wall clock) of exact solution only as line graph with log scale."""
+    # Sort data by vertices for cleaner plot
+    data_sorted = sorted(data, key=lambda d: (d["vertices"], d["edges"]))
+    
+    vertices = [d["vertices"] for d in data_sorted]
+    exact_times = [d["exact_time"] for d in data_sorted]
+    
+    # Create uniform test names for x-axis labels (same format as quality plot)
+    size_groups = {}
+    for d in data_sorted:
+        v = d["vertices"]
+        e = d["edges"]
+        key = (v, e)
+        if key not in size_groups:
+            size_groups[key] = []
+        size_groups[key].append(d)
+    
+    uniform_names = []
+    for (v, e) in sorted(size_groups.keys()):
+        group = size_groups[(v, e)]
+        if len(group) == 1:
+            uniform_names.append(f"{v}v_{e}")
+        else:
+            for idx, d in enumerate(group, 1):
+                uniform_names.append(f"{v}v_{e}_{idx}")
+
+    fig, ax = plt.subplots(1, 1, figsize=(max(16, len(data_sorted) * 0.65), 8))
+    
+    x_pos = range(len(data_sorted))
+    
+    # Plot as line graph - exact only
+    ax.plot(x_pos, exact_times, "ro-", label="Exact (optimal)", linewidth=2.5, markersize=8, alpha=0.8)
+    
+    # Add decimal values in parentheses next to each point
+    for i, (x, exact_t) in enumerate(zip(x_pos, exact_times)):
+        # Label for exact (above point)
+        ax.text(x, exact_t, f'({exact_t:.3f})', 
+                ha='center', va='bottom', fontsize=7, color='red', alpha=0.8)
+    
+    ax.set_xlabel("Test Case", fontsize=12, fontweight='bold')
+    ax.set_ylabel("Runtime (seconds, log scale)", fontsize=12, fontweight='bold')
+    ax.set_title("Exact Solution Runtime (Wall Clock)\n(Log Scale with Decimal Values)", 
+                 fontsize=14, fontweight='bold', pad=20)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(uniform_names, rotation=45, ha='right', fontsize=8)
+    ax.set_yscale("log")  # Log scale
+    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.legend(loc='upper left', fontsize=11, framealpha=0.9)
+
+    png_path = os.path.join(out_dir, "part_D_runtime_exact_only.png")
+    pdf_path = os.path.join(out_dir, "part_D_runtime_exact_only.pdf")
+    plt.tight_layout()
+    plt.savefig(png_path, dpi=300, bbox_inches='tight')
+    plt.savefig(pdf_path, bbox_inches='tight')
+    print(f"Saved exact-only runtime plot to:\n  {png_path}\n  {pdf_path}")
+    plt.close()
+
+
 def plot_quality(data, out_dir):
     """
     Plot solution quality as bar chart only (no line graph).
@@ -288,6 +347,7 @@ def main():
     print("Generating Part D plots...")
 
     plot_runtime(data, script_dir)
+    plot_runtime_exact_only(data, script_dir)
     plot_quality(data, script_dir)
 
     print("Done.")
