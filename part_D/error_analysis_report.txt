@@ -1,0 +1,100 @@
+================================================================================
+APPROXIMATION ERROR PERCENTAGE ANALYSIS
+================================================================================
+
+METRIC EXPLANATION:
+--------------------------------------------------------------------------------
+Error Percentage = (Approximate Value / Exact Value) * 100
+
+Interpretation:
+  - 100.00% = Perfect (approximation found optimal solution)
+  - 95.00%  = Approximation is 5% worse than optimal
+  - 90.00%  = Approximation is 10% worse than optimal
+  - < 90%   = Poor performance (needs algorithm improvement)
+
+This metric helps identify:
+  1. Which test sizes are most challenging
+  2. Overall approximation quality
+  3. Areas where the algorithm needs improvement
+
+================================================================================
+OVERALL STATISTICS
+================================================================================
+
+Total test cases analyzed: 19
+Total individual runs: 95
+
+Overall Error Percentage:
+  Average: 99.53%
+  Minimum: 93.69%
+  Maximum: 100.00%
+  Standard Deviation: 1.42%
+
+Runs finding optimal solution: 75 (78.9%)
+Runs finding suboptimal solution: 20 (21.1%)
+
+================================================================================
+STATISTICS BY TEST SIZE
+================================================================================
+
+Vertices   Edges      Tests    Runs     Avg Error %  Min %      Max %      Std Dev   
+--------------------------------------------------------------------------------
+2          1          1        5        100.00       100.00     100.00     0.00      
+3          2          1        5        100.00       100.00     100.00     0.00      
+3          3          2        10       100.00       100.00     100.00     0.00      
+4          6          2        10       100.00       100.00     100.00     0.00      
+5          10         2        10       100.00       100.00     100.00     0.00      
+6          8          1        5        100.00       100.00     100.00     0.00      
+6          9          2        10       100.00       100.00     100.00     0.00      
+7          12         1        5        100.00       100.00     100.00     0.00      
+8          12         1        5        100.00       100.00     100.00     0.00      
+9          15         1        5        98.81        98.81      98.81      0.00      
+10         20         2        10       96.40        93.69      99.11      2.85      
+10         45         1        5        99.49        99.49      99.49      0.00      
+11         50         1        5        100.00       100.00     100.00     0.00      
+11         55         1        5        100.00       100.00     100.00     0.00      
+
+================================================================================
+DETAILED RESULTS BY TEST CASE
+================================================================================
+
+Test Name                 Vertices   Edges      Exact    Avg Error %  Min %      Max %      Runs  
+--------------------------------------------------------------------------------
+test_input_small_1        2          1          5        100.00       100.00     100.00     5     
+test_input_small_2        3          2          7        100.00       100.00     100.00     5     
+test_input_1              3          3          9        100.00       100.00     100.00     5     
+test_small_1              3          3          9        100.00       100.00     100.00     5     
+test_input_2              4          6          13       100.00       100.00     100.00     5     
+test_small_2              4          6          13       100.00       100.00     100.00     5     
+test_input_3              5          10         48       100.00       100.00     100.00     5     
+test_medium_1             5          10         48       100.00       100.00     100.00     5     
+test_nonoptimal           6          8          56       100.00       100.00     100.00     5     
+test_input_4              6          9          35       100.00       100.00     100.00     5     
+test_medium_2             6          9          35       100.00       100.00     100.00     5     
+test_input_medium_1       7          12         49       100.00       100.00     100.00     5     
+test_input_5              8          12         46       100.00       100.00     100.00     5     
+test_input_medium_2       9          15         84       98.81        98.81      98.81      5     
+test_input_6              10         20         111      93.69        93.69      93.69      5     
+test_large_1              10         20         112      99.11        99.11      99.11      5     
+test_01.txt               10         45         786      99.49        99.49      99.49      5     
+test_02.txt               11         50         791      100.00       100.00     100.00     5     
+test_03.txt               11         55         879      100.00       100.00     100.00     5     
+
+================================================================================
+RECOMMENDATIONS FOR ALGORITHM IMPROVEMENT
+================================================================================
+
+Test sizes with worst approximation performance:
+  - 10 vertices, 20 edges: avg 96.40% (target: improve to >95%)
+  - 9 vertices, 15 edges: avg 98.81% (target: improve to >95%)
+  - 10 vertices, 45 edges: avg 99.49% (target: improve to >95%)
+
+Test cases with worst individual performance:
+  - test_input_6 (10v, 20e): avg 93.69% (exact=111)
+  - test_input_medium_2 (9v, 15e): avg 98.81% (exact=84)
+  - test_large_1 (10v, 20e): avg 99.11% (exact=112)
+  - test_01.txt (10v, 45e): avg 99.49% (exact=786)
+
+================================================================================
+END OF REPORT
+================================================================================

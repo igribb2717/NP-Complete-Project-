@@ -6,6 +6,6 @@ Test Results Summary
 Total tests: 6
 Optimal solutions: 5
 Suboptimal solutions: 1
-Average speedup: .68x
+Average speedup: .66x
 
 Data saved to: /Users/jacksongreer/Downloads/cs412/NP-Complete-Problem/NP-Complete-Project-/comparison_data.txt
