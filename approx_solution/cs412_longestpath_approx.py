@@ -79,19 +79,20 @@ def read_graph(input_source):
     return vertices, graph
 
 
-def greedy_path_from_start(start, graph, vertices, random_seed=None, strategy='greedy'):
+def greedy_path_from_start(start, graph, vertices, random_seed=None):
     """
-    Find a path starting from 'start' using a greedy strategy.
+    Find a path starting from 'start' using a strict greedy strategy.
     
     At each step, chooses the highest-weight edge to an unvisited vertex.
     Breaks ties randomly.
+    
+    This is a simple, strict greedy algorithm with no lookahead.
     
     Args:
         start: starting vertex
         graph: adjacency dictionary
         vertices: set of all vertices
         random_seed: optional seed for reproducibility
-        strategy: 'greedy' (simple greedy) or 'lookahead' (prefer vertices with high-weight edges)
     
     Returns:
         (path_length, path): tuple of path length and list of vertices
@@ -110,32 +111,21 @@ def greedy_path_from_start(start, graph, vertices, random_seed=None, strategy='g
         if current in graph:
             for neighbor, weight in graph[current].items():
                 if neighbor not in visited:
-                    if strategy == 'lookahead':
-                        # Score based on edge weight + potential future edges
-                        # Look at the maximum edge weight from this neighbor to unvisited vertices
-                        future_potential = 0
-                        if neighbor in graph:
-                            for future_neighbor, future_weight in graph[neighbor].items():
-                                if future_neighbor not in visited and future_neighbor != current:
-                                    future_potential = max(future_potential, future_weight)
-                        # Combine current edge weight with potential (weighted)
-                        score = weight + 0.3 * future_potential
-                        candidates.append((score, weight, neighbor))
-                    else:
-                        candidates.append((weight, weight, neighbor))
+                    # Strict greedy: just use the edge weight
+                    candidates.append((weight, neighbor))
         
         if not candidates:
             break  # No more neighbors to visit
         
-        # Sort by score (descending), then randomly shuffle ties
+        # Sort by weight (descending)
         candidates.sort(reverse=True, key=lambda x: x[0])
         
-        # Find all candidates with the maximum score (ties)
-        max_score = candidates[0][0]
-        tied_candidates = [c for c in candidates if abs(c[0] - max_score) < 1e-9]
+        # Find all candidates with the maximum weight (ties)
+        max_weight = candidates[0][0]
+        tied_candidates = [c for c in candidates if abs(c[0] - max_weight) < 1e-9]
         
         # Randomly choose among tied candidates
-        _, chosen_weight, chosen_neighbor = random.choice(tied_candidates)
+        chosen_weight, chosen_neighbor = random.choice(tied_candidates)
         
         # Add to path
         visited.add(chosen_neighbor)
@@ -210,7 +200,7 @@ def find_longest_path_approx(vertices, graph, num_starts=None, random_seed=None)
                 seed = i * 1000 + seed_offset
             
             # Strict greedy strategy only (no lookahead)
-            path_length, path = greedy_path_from_start(start, graph, vertices, seed, strategy='greedy')
+            path_length, path = greedy_path_from_start(start, graph, vertices, seed)
             if path_length > max_length:
                 max_length = path_length
                 best_path = path
