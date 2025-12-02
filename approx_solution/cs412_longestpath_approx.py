@@ -1,43 +1,19 @@
 #!/usr/bin/env python3
 """
 CS 412 Longest Path - Approximation Solution
-This program finds an approximate longest simple path in an undirected graph using a greedy algorithm.
+Simple greedy algorithm to find an approximate longest path.
 
-The algorithm uses a greedy strategy with random tie-breaking to find a long path in polynomial time.
-It tries multiple starting vertices and selects the best path found.
-
-Algorithm Strategy:
-1. Try multiple starting vertices (or all vertices for small graphs)
-2. From each start, greedily extend the path by choosing the highest-weight edge to an unvisited vertex
-3. Break ties randomly to add diversity
-4. Return the longest path found across all attempts
-
-Time Complexity: O(n * m) where n is vertices and m is edges - polynomial time
-Space Complexity: O(n + m)
-
+Algorithm: Try each vertex as a starting point, greedily extend the path
+by always choosing the highest-weight edge to an unvisited vertex.
+Return the longest path found.
 """
 
 import sys
-import random
 from collections import defaultdict
-import argparse
-import time
 
 
 def read_graph(input_source):
-    """
-    Read graph from input file or stdin.
-    Format: First line has n (vertices) and m (edges)
-    Following m lines have: u v w (edge from u to v with weight w)
-    
-    Args:
-        input_source: either a file path (string) or file-like object (stdin)
-    
-    Returns:
-        vertices: set of vertex names
-        graph: dictionary mapping (u, v) -> weight (undirected, so both directions stored)
-    """
-    # Handle both file path and stdin
+    """Read graph from input file or stdin."""
     if isinstance(input_source, str):
         f = open(input_source, 'r')
         should_close = True
@@ -46,7 +22,6 @@ def read_graph(input_source):
         should_close = False
     
     try:
-        # Read all lines, filtering out empty lines
         lines = [line.strip() for line in f if line.strip()]
     finally:
         if should_close:
@@ -59,75 +34,42 @@ def read_graph(input_source):
     graph = defaultdict(dict)
     vertices = set()
     
-    # Read edges - only read as many as are available (in case file has fewer than m)
-    num_available_edges = len(lines) - 1  # Subtract 1 for header line
-    num_edges_to_read = min(m, num_available_edges)
-    
-    for i in range(1, num_edges_to_read + 1):
+    for i in range(1, min(m + 1, len(lines))):
         if i >= len(lines):
-            break  # Safety check
+            break
         parts = lines[i].split()
         if len(parts) >= 3:
             u, v = parts[0], parts[1]
             w = float(parts[2])
             vertices.add(u)
             vertices.add(v)
-            # Store edge in both directions (undirected graph)
             graph[u][v] = w
             graph[v][u] = w
     
     return vertices, graph
 
 
-def greedy_path_from_start(start, graph, vertices, random_seed=None):
-    """
-    Find a path starting from 'start' using a strict greedy strategy.
-    
-    At each step, chooses the highest-weight edge to an unvisited vertex.
-    Breaks ties randomly.
-    
-    This is a simple, strict greedy algorithm with no lookahead.
-    
-    Args:
-        start: starting vertex
-        graph: adjacency dictionary
-        vertices: set of all vertices
-        random_seed: optional seed for reproducibility
-    
-    Returns:
-        (path_length, path): tuple of path length and list of vertices
-    """
-    if random_seed is not None:
-        random.seed(random_seed)
-    
+def greedy_path_from_start(start, graph, vertices):
+    """Find a path starting from 'start' using strict greedy strategy."""
     visited = {start}
     path = [start]
     current = start
     path_length = 0
     
     while True:
-        # Find all unvisited neighbors with their edge weights
         candidates = []
         if current in graph:
             for neighbor, weight in graph[current].items():
                 if neighbor not in visited:
-                    # Strict greedy: just use the edge weight
                     candidates.append((weight, neighbor))
         
         if not candidates:
-            break  # No more neighbors to visit
+            break
         
-        # Sort by weight (descending)
+        # Choose the highest weight edge (first one if ties)
         candidates.sort(reverse=True, key=lambda x: x[0])
+        chosen_weight, chosen_neighbor = candidates[0]
         
-        # Find all candidates with the maximum weight (ties)
-        max_weight = candidates[0][0]
-        tied_candidates = [c for c in candidates if abs(c[0] - max_weight) < 1e-9]
-        
-        # Randomly choose among tied candidates
-        chosen_weight, chosen_neighbor = random.choice(tied_candidates)
-        
-        # Add to path
         visited.add(chosen_neighbor)
         path.append(chosen_neighbor)
         path_length += chosen_weight
@@ -136,128 +78,40 @@ def greedy_path_from_start(start, graph, vertices, random_seed=None):
     return path_length, path
 
 
-def find_longest_path_approx(vertices, graph, num_starts=None, random_seed=None):
-    """
-    Find an approximate longest path using greedy algorithm with multiple starting points.
-    
-    Args:
-        vertices: set of all vertices
-        graph: adjacency dictionary
-        num_starts: number of starting vertices to try (None = try all for small graphs, 
-                   or more for large graphs)
-        random_seed: optional seed for reproducibility
-    
-    Returns:
-        (max_length, best_path): tuple of maximum path length and the path itself
-    """
+def find_longest_path_approx(vertices, graph):
+    """Find approximate longest path by trying each vertex as a start."""
     if not vertices:
         return 0, []
-    
-    n = len(vertices)
-    
-    # Determine how many starting vertices to try
-    if num_starts is None:
-        # Try all vertices for small/medium graphs, more for large graphs
-        if n <= 100:
-            num_starts = n  # Try all vertices
-        elif n <= 200:
-            num_starts = min(150, n)  # Try most vertices
-        else:
-            num_starts = min(200, n)  # Try up to 200 for very large graphs
-    
-    # Select starting vertices
-    vertex_list = list(vertices)
-    if num_starts >= n:
-        starts = vertex_list
-    else:
-        # Randomly sample starting vertices
-        if random_seed is not None:
-            random.seed(random_seed)
-        starts = random.sample(vertex_list, num_starts)
     
     max_length = 0
     best_path = []
     
-    # Number of random seeds to try per starting vertex
-    # More seeds = more diversity in tie-breaking, better chance of finding good paths
-    if n <= 20:
-        num_seeds_per_start = 30  # Small graphs: try many seeds
-    elif n <= 50:
-        num_seeds_per_start = 20  # Medium graphs: try many seeds
-    elif n <= 100:
-        num_seeds_per_start = 15  # Larger graphs: still try many seeds
-    else:
-        num_seeds_per_start = 10  # Very large graphs: limit seeds to keep polynomial
-    
-    # Try each starting vertex with multiple random seeds (strict greedy only)
-    for i, start in enumerate(starts):
-        # Try multiple random seeds for this starting vertex
-        for seed_offset in range(num_seeds_per_start):
-            # Use different seed for each attempt
-            if random_seed is not None:
-                seed = random_seed + i * 1000 + seed_offset
-            else:
-                seed = i * 1000 + seed_offset
-            
-            # Strict greedy strategy only (no lookahead)
-            path_length, path = greedy_path_from_start(start, graph, vertices, seed)
-            if path_length > max_length:
-                max_length = path_length
-                best_path = path
+    # Try each vertex as a starting point
+    for start in vertices:
+        path_length, path = greedy_path_from_start(start, graph, vertices)
+        if path_length > max_length:
+            max_length = path_length
+            best_path = path
     
     return max_length, best_path
 
 
 def main():
-    """
-    Main function to read input, solve longest path approximation, and output result.
-    """
-    parser = argparse.ArgumentParser(description='Longest Path Approximation Solver')
-    parser.add_argument('--timing', action='store_true', 
-                       help='Output wall clock timing information')
-    parser.add_argument('--num-starts', type=int, default=None,
-                       help='Number of starting vertices to try (default: auto)')
-    parser.add_argument('--seed', type=int, default=None,
-                       help='Random seed for reproducibility')
-    parser.add_argument('input_file', nargs='?', default=None,
-                       help='Input file (if not provided, reads from stdin)')
-    
-    args = parser.parse_args()
-    
-    # Read input
-    if args.input_file:
-        input_source = args.input_file
-    else:
-        input_source = sys.stdin
-    
-    start_time = time.time()
+    """Main function."""
+    input_source = sys.argv[1] if len(sys.argv) > 1 else sys.stdin
     
     vertices, graph = read_graph(input_source)
     
     if not vertices:
         print(0)
         print()
-        if args.timing:
-            elapsed = time.time() - start_time
-            print(f"# Runtime: {elapsed:.4f} seconds", file=sys.stderr)
         return
     
-    max_length, best_path = find_longest_path_approx(
-        vertices, graph, 
-        num_starts=args.num_starts,
-        random_seed=args.seed
-    )
+    max_length, best_path = find_longest_path_approx(vertices, graph)
     
-    elapsed = time.time() - start_time
-    
-    # Output: path length on first line, path on second line
     print(f"{int(max_length)}")
     print(" ".join(best_path))
-    
-    if args.timing:
-        print(f"# Runtime: {elapsed:.4f} seconds", file=sys.stderr)
 
 
 if __name__ == "__main__":
     main()
-
