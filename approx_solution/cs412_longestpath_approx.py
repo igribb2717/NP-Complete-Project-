@@ -199,7 +199,7 @@ def find_longest_path_approx(vertices, graph, num_starts=None, random_seed=None)
     else:
         num_seeds_per_start = 10  # Very large graphs: limit seeds to keep polynomial
     
-    # Try each starting vertex with multiple random seeds and strategies
+    # Try each starting vertex with multiple random seeds (strict greedy only)
     for i, start in enumerate(starts):
         # Try multiple random seeds for this starting vertex
         for seed_offset in range(num_seeds_per_start):
@@ -209,14 +209,8 @@ def find_longest_path_approx(vertices, graph, num_starts=None, random_seed=None)
             else:
                 seed = i * 1000 + seed_offset
             
-            # Try simple greedy strategy
+            # Strict greedy strategy only (no lookahead)
             path_length, path = greedy_path_from_start(start, graph, vertices, seed, strategy='greedy')
-            if path_length > max_length:
-                max_length = path_length
-                best_path = path
-            
-            # Try lookahead strategy (prefer vertices with high-weight future edges)
-            path_length, path = greedy_path_from_start(start, graph, vertices, seed, strategy='lookahead')
             if path_length > max_length:
                 max_length = path_length
                 best_path = path

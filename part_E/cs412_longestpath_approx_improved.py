@@ -1,49 +1,19 @@
 #!/usr/bin/env python3
 """
 CS 412 Longest Path - IMPROVED Approximation Solution
-This is an enhanced version of the approximation algorithm that improves
-performance on difficult test cases, particularly those with 9-12 vertices and <=20 edges.
+This is an enhanced version of the approximation algorithm that uses
+greedy strategy paired with lookahead to find long paths.
 
-IMPROVEMENTS MADE:
+ALGORITHM STRATEGY:
 ------------------
-1. High-Weight Edge Connection Strategy (NEW):
-   - Added greedy_path_highweight_priority() that prioritizes connecting high-weight edges
-   - Considers 2-step paths ahead to avoid getting stuck
-   - Penalizes edges that lead to early dead ends
-   - This is the primary strategy for fixing test cases 794, 895, 936, 1026, 1081
+Uses greedy paired with lookahead:
+1. Greedy strategy: At each step, chooses the highest-weight edge to an unvisited vertex
+2. Lookahead strategy: Prefers vertices with high-weight future edges (1-step lookahead)
+   - Scores edges based on current weight + 0.3 * maximum future edge weight
+   - Helps avoid getting trapped in local optima by seeing one step ahead
 
-2. High-Weight Edge Sequence Strategy (NEW):
-   - Added greedy_path_connect_highweight_edges() that builds paths by connecting
-     top high-weight edges in sequence
-   - Identifies top edges and prioritizes vertices that are endpoints of these edges
-   - Helps connect clusters of high-weight edges
-
-3. Enhanced Lookahead Strategy: 
-   - Original: 1-step lookahead with 0.3 weight
-   - Improved: 2-step lookahead that considers paths of length 2 ahead
-   - Bonus for accessing multiple high-weight edges
-   - This helps avoid getting trapped in local optima by seeing further ahead
-
-4. High-Degree Vertex Prioritization:
-   - Original: Randomly samples starting vertices
-   - Improved: Prioritizes starting from vertices with high degree (many edges)
-   - High-degree vertices often lead to better paths
-
-5. Increased Exploration for Problematic Cases:
-   - For graphs with 9-12 vertices and <=20 edges: 30 seeds per start, all vertices as starts
-   - This increases chance of finding optimal paths for these specific problematic cases
-
-RESULTS:
---------
-The improved algorithm successfully fixes 3 out of 5 target test cases:
-- test_0895: 474 (optimal, was 313) ✓
-- test_0936: 322 (optimal, was 216) ✓  
-- test_1026: 424 (optimal, was 235) ✓
-- test_0794: 414 (improved from 414, optimal is 526) - partial improvement
-- test_1081: 453 (improved from 438, optimal is 549) - partial improvement
-
-These improvements specifically target test cases 794, 895, 936, 1026, 1081
-which were identified as needing fixes.
+Both strategies are tried from multiple starting vertices with different random seeds
+to find the best path.
 """
 
 import sys
@@ -515,7 +485,7 @@ def find_longest_path_approx_improved(vertices, graph, num_starts=None, random_s
     else:
         num_seeds_per_start = 3
     
-    # Try each starting vertex with multiple random seeds and strategies
+    # Try each starting vertex with multiple random seeds using greedy paired with lookahead
     for i, start in enumerate(starts):
         for seed_offset in range(num_seeds_per_start):
             if random_seed is not None:
@@ -523,50 +493,18 @@ def find_longest_path_approx_improved(vertices, graph, num_starts=None, random_s
             else:
                 seed = i * 1000 + seed_offset
             
-            # IMPROVEMENT: Optimized strategy selection
-            # For problematic cases, focus on high-weight priority strategy
-            # For others, use standard strategies
+            # Use greedy paired with lookahead strategies
+            # 1. Simple greedy
+            path_length, path = greedy_path_from_start_improved(start, graph, vertices, seed, strategy='greedy')
+            if path_length > max_length:
+                max_length = path_length
+                best_path = path
             
-            if is_problematic_case:
-                # For problematic cases: try multiple strategies
-                # This is the key strategy for fixing test cases 794, 895, 936, 1026, 1081
-                
-                # Strategy 1: High-weight priority
-                path_length, path = greedy_path_highweight_priority(start, graph, vertices, seed)
-                if path_length > max_length:
-                    max_length = path_length
-                    best_path = path
-                
-                # Strategy 2: Connect high-weight edges (new, specifically for these cases)
-                path_length, path = greedy_path_connect_highweight_edges(start, graph, vertices, seed)
-                if path_length > max_length:
-                    max_length = path_length
-                    best_path = path
-            else:
-                # Standard strategies for other cases
-                # 1. Simple greedy
-                path_length, path = greedy_path_from_start_improved(start, graph, vertices, seed, strategy='greedy')
-                if path_length > max_length:
-                    max_length = path_length
-                    best_path = path
-                
-                # 2. Original lookahead
-                path_length, path = greedy_path_from_start_improved(start, graph, vertices, seed, strategy='lookahead')
-                if path_length > max_length:
-                    max_length = path_length
-                    best_path = path
-                
-                # 3. 2-step lookahead
-                path_length, path = greedy_path_from_start_improved(start, graph, vertices, seed, strategy='lookahead2')
-                if path_length > max_length:
-                    max_length = path_length
-                    best_path = path
-                
-                # 4. High-weight priority (works well for many cases)
-                path_length, path = greedy_path_highweight_priority(start, graph, vertices, seed)
-                if path_length > max_length:
-                    max_length = path_length
-                    best_path = path
+            # 2. Lookahead (prefer vertices with high-weight future edges)
+            path_length, path = greedy_path_from_start_improved(start, graph, vertices, seed, strategy='lookahead')
+            if path_length > max_length:
+                max_length = path_length
+                best_path = path
     
     return max_length, best_path
 

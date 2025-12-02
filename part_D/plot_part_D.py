@@ -86,31 +86,31 @@ def read_comparison_data(path):
 
 def plot_runtime(data, out_dir):
     """Plot runtime (wall clock) of exact vs approx as line graph with linear scale (decimal seconds)."""
-    # Sort data by vertices for cleaner plot
-    data_sorted = sorted(data, key=lambda d: (d["vertices"], d["edges"]))
+    # Sort data by complexity: edges first (main driver of complexity), then vertices
+    # This ensures the runtime graph increases smoothly
+    data_sorted = sorted(data, key=lambda d: (d["edges"], d["vertices"]))
     
     vertices = [d["vertices"] for d in data_sorted]
     exact_times = [d["exact_time"] for d in data_sorted]
     approx_times = [d["approx_time"] for d in data_sorted]
     
-    # Create uniform test names for x-axis labels (same format as quality plot)
-    size_groups = {}
+    # Create uniform test names for x-axis labels in the same order as data_sorted
+    # Track counts for each (v, e) combination to handle duplicates
+    size_counts = {}
+    uniform_names = []
     for d in data_sorted:
         v = d["vertices"]
         e = d["edges"]
         key = (v, e)
-        if key not in size_groups:
-            size_groups[key] = []
-        size_groups[key].append(d)
-    
-    uniform_names = []
-    for (v, e) in sorted(size_groups.keys()):
-        group = size_groups[(v, e)]
-        if len(group) == 1:
+        if key not in size_counts:
+            size_counts[key] = 0
+        size_counts[key] += 1
+        count = size_counts[key]
+        
+        if count == 1:
             uniform_names.append(f"{v}v_{e}")
         else:
-            for idx, d in enumerate(group, 1):
-                uniform_names.append(f"{v}v_{e}_{idx}")
+            uniform_names.append(f"{v}v_{e}_{count}")
 
     fig, ax = plt.subplots(1, 1, figsize=(max(16, len(data_sorted) * 0.65), 8))
     
@@ -150,30 +150,30 @@ def plot_runtime(data, out_dir):
 
 def plot_runtime_exact_only(data, out_dir):
     """Plot runtime (wall clock) of exact solution only as line graph with log scale."""
-    # Sort data by vertices for cleaner plot
-    data_sorted = sorted(data, key=lambda d: (d["vertices"], d["edges"]))
+    # Sort data by complexity: edges first (main driver of complexity), then vertices
+    # This ensures the runtime graph increases smoothly
+    data_sorted = sorted(data, key=lambda d: (d["edges"], d["vertices"]))
     
     vertices = [d["vertices"] for d in data_sorted]
     exact_times = [d["exact_time"] for d in data_sorted]
     
-    # Create uniform test names for x-axis labels (same format as quality plot)
-    size_groups = {}
+    # Create uniform test names for x-axis labels in the same order as data_sorted
+    # Track counts for each (v, e) combination to handle duplicates
+    size_counts = {}
+    uniform_names = []
     for d in data_sorted:
         v = d["vertices"]
         e = d["edges"]
         key = (v, e)
-        if key not in size_groups:
-            size_groups[key] = []
-        size_groups[key].append(d)
-    
-    uniform_names = []
-    for (v, e) in sorted(size_groups.keys()):
-        group = size_groups[(v, e)]
-        if len(group) == 1:
+        if key not in size_counts:
+            size_counts[key] = 0
+        size_counts[key] += 1
+        count = size_counts[key]
+        
+        if count == 1:
             uniform_names.append(f"{v}v_{e}")
         else:
-            for idx, d in enumerate(group, 1):
-                uniform_names.append(f"{v}v_{e}_{idx}")
+            uniform_names.append(f"{v}v_{e}_{count}")
 
     fig, ax = plt.subplots(1, 1, figsize=(max(16, len(data_sorted) * 0.65), 8))
     
@@ -212,31 +212,27 @@ def plot_quality(data, out_dir):
     Plot solution quality as bar chart only (no line graph).
     Shows approximation performance as percentage of optimal.
     """
-    # Sort data by vertices, then edges for better organization
-    data_sorted = sorted(data, key=lambda d: (d["vertices"], d["edges"]))
+    # Sort data by complexity: edges first (main driver of complexity), then vertices
+    # This ensures consistent ordering across all plots
+    data_sorted = sorted(data, key=lambda d: (d["edges"], d["vertices"]))
     
-    # Create uniform test names: group by (vertices, edges) and number duplicates
-    # Format: Nv_M if unique, or Nv_M_1, Nv_M_2, etc. if duplicates exist
-    size_groups = {}
+    # Create uniform test names in the same order as data_sorted
+    # Track counts for each (v, e) combination to handle duplicates
+    size_counts = {}
+    uniform_names = []
     for d in data_sorted:
         v = d["vertices"]
         e = d["edges"]
         key = (v, e)
-        if key not in size_groups:
-            size_groups[key] = []
-        size_groups[key].append(d)
-    
-    # Assign uniform names
-    uniform_names = []
-    for (v, e) in sorted(size_groups.keys()):
-        group = size_groups[(v, e)]
-        if len(group) == 1:
-            # Only one test with this (v, e) combination - no suffix needed
+        if key not in size_counts:
+            size_counts[key] = 0
+        size_counts[key] += 1
+        count = size_counts[key]
+        
+        if count == 1:
             uniform_names.append(f"{v}v_{e}")
         else:
-            # Multiple tests with same (v, e) - add suffix
-            for idx, d in enumerate(group, 1):
-                uniform_names.append(f"{v}v_{e}_{idx}")
+            uniform_names.append(f"{v}v_{e}_{count}")
     
     vertices = [d["vertices"] for d in data_sorted]
     exact_vals = [d["exact_value"] for d in data_sorted]
