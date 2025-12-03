@@ -1,0 +1,6 @@
+Test File,Improved Approximation Length,Exact Length,Percentage of Optimal,Difference
+test_0895.txt,474,474,100.00%,0
+test_0931.txt,360,360,100.00%,0
+test_0936.txt,322,322,100.00%,0
+test_0941.txt,421,421,100.00%,0
+test_1026.txt,424,424,100.00%,0

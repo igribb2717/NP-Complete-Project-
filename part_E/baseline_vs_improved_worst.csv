@@ -1,0 +1,6 @@
+Test File,Baseline Length,Improved Length,Exact Length,Baseline %,Improved %,Baseline Better
+test_0944.txt,328,206,328,100.00%,62.80%,True
+test_0924.txt,409,295,409,100.00%,72.13%,True
+test_0896.txt,220,220,291,75.60%,75.60%,False
+test_0678.txt,398,303,398,100.00%,76.13%,True
+test_0957.txt,677,519,677,100.00%,76.66%,True
