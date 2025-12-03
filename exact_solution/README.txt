@@ -70,6 +70,112 @@ a c b
 This means the longest path has length 9 and follows the path: a -> c -> b
 (which uses edges a-c with weight 5 and c-b with weight 4, total = 9)
 
+SMALL TEST CASES - CORRECTNESS VERIFICATION
+--------------------------------------------
+The following small test cases are documented to demonstrate the correctness
+of the exact solution. Each test case shows the input, output, and verification
+that the solution finds the optimal longest path.
+
+Test Case 1: test_input_small_1 (2 vertices, 1 edge)
+----------------------------------------------------
+Input:
+  2 1
+  a b 5
+
+Output:
+  5
+  b a
+
+Verification:
+  - Graph has only 2 vertices (a, b) with 1 edge of weight 5
+  - The longest path must use the only edge: a-b (or b-a)
+  - Path length = 5 (correct)
+  - The solution correctly identifies this trivial case
+
+Test Case 2: test_input_small_2 (3 vertices, 2 edges)
+------------------------------------------------------
+Input:
+  3 2
+  a b 3
+  b c 4
+
+Output:
+  7
+  a b c
+
+Verification:
+  - Graph: a--3--b--4--c (linear chain)
+  - Possible paths:
+    * a->b->c: weight = 3 + 4 = 7
+    * a->b: weight = 3
+    * b->c: weight = 4
+  - Longest path: a->b->c with length 7 (correct)
+  - The solution correctly finds the path that uses both edges
+
+Test Case 3: test_input_1 (3 vertices, 3 edges - triangle)
+------------------------------------------------------------
+Input:
+  3 3
+  a b 3
+  b c 4
+  a c 5
+
+Output:
+  9
+  a c b
+
+Verification:
+  - Graph is a triangle (complete graph on 3 vertices)
+  - All possible paths:
+    * a->b->c: weight = 3 + 4 = 7
+    * a->c->b: weight = 5 + 4 = 9  ← OPTIMAL
+    * b->a->c: weight = 3 + 5 = 8
+    * b->c->a: weight = 4 + 5 = 9  ← OPTIMAL (alternative)
+    * c->a->b: weight = 5 + 3 = 8
+    * c->b->a: weight = 4 + 3 = 7
+  - Longest path: a->c->b (or b->c->a) with length 9 (correct)
+  - The solution correctly chooses the path using the two heaviest edges (5 and 4)
+
+Test Case 4: test_input_2 (4 vertices, 6 edges - complete graph K4)
+--------------------------------------------------------------------
+Input:
+  4 6
+  a b 1
+  a c 2
+  a d 3
+  b c 4
+  b d 5
+  c d 6
+
+Output:
+  13
+  b c d a
+
+Verification:
+  - Graph is a complete graph on 4 vertices (K4)
+  - The longest path must visit all 4 vertices (maximum length for 4 vertices)
+  - Path b->c->d->a: weight = 4 + 6 + 3 = 13
+  - Alternative optimal paths:
+    * c->d->a->b: weight = 6 + 3 + 1 = 10 (not optimal)
+    * d->c->b->a: weight = 6 + 4 + 1 = 11 (not optimal)
+    * b->d->c->a: weight = 5 + 6 + 2 = 13 (also optimal)
+  - The solution correctly finds a path of length 13, which is optimal
+  - Verification: The path uses edges (b-c:4), (c-d:6), (d-a:3) = 13
+  - No path visiting all 4 vertices can exceed 13, confirming optimality
+
+Correctness Summary:
+--------------------
+These small test cases demonstrate that the exact solution:
+1. Handles trivial cases (2 vertices) correctly
+2. Finds paths in linear chains correctly
+3. Chooses optimal paths when multiple options exist (triangle case)
+4. Finds optimal paths in complete graphs (K4 case)
+5. Correctly calculates path lengths by summing edge weights
+6. Returns valid paths (no cycles, all edges exist in the graph)
+
+The solution's correctness on these small, verifiable cases provides confidence
+that the algorithm correctly implements the longest path problem for larger inputs.
+
 TEST CASES
 ----------
 Test cases are located in the test_cases/ subfolder, organized by size:
