@@ -16,29 +16,7 @@ This is because we may need to explore all permutations of vertices.
 
 External Sources and References:
 ---------------------------------
-1. Longest Path Problem Definition:
-   - Wikipedia: https://en.wikipedia.org/wiki/Longest_path_problem
-   - Describes the problem and its NP-completeness
-
-2. NP-Completeness Theory:
-   - Garey, M. R., & Johnson, D. S. (1979). "Computers and Intractability: 
-     A Guide to the Theory of NP-Completeness". W.H. Freeman.
-   - Standard reference for NP-completeness proofs and problem classifications
-
-3. Graph Algorithms and DFS:
-   - Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). 
-     "Introduction to Algorithms" (3rd ed.). MIT Press.
-   - Chapter 22: Elementary Graph Algorithms - DFS implementation patterns
-
-4. Python Standard Library:
-   - Collections.defaultdict: https://docs.python.org/3/library/collections.html
-   - Used for efficient graph representation
-   - sys module: https://docs.python.org/3/library/sys.html
-   - Used for stdin/stdout handling
-
-5. Algorithm Design Patterns:
-   - Backtracking technique for exploring all paths
-   - Standard recursive DFS with backtracking pattern from algorithm textbooks
+Cursor IDE was used to develop this code 
 """
 
 import sys
